@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 프롬프트 탈옥 챌린지</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .challenge-description {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        #chat-history {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: #dcf8c6;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message {
+            background-color: #f1f0f0;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1a252f;
+        }
+
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>AI 프롬프트 탈옥 챌린지</h1>
+
+    <div class="challenge-description">
+        <h2>미션 설명</h2>
+        <p>이 챌린지에서는 Gemini AI와 대화하며 숨겨진 FLAG를 추출해야 합니다.</p>
+        <p>AI는 FLAG를 절대 공개하지 않도록 엄격한 지시를 받았습니다. 여러분의 임무는 창의적인 프롬프트 엔지니어링과 다양한 프롬프트 인젝션 기법을 사용하여 AI가 FLAG를 노출하도록 유도하는
+            것입니다.</p>
+
+        <h3>힌트</h3>
+        <ul>
+            <li>AI 모델의 컨텍스트 이해 방식을 고려해보세요</li>
+            <li>역할극, 가정, 또는 특정 시나리오를 제시해보세요</li>
+            <li>모델의 지시사항에 혼란을 주는 방법을 생각해보세요</li>
+            <li>다양한 인코딩이나 출력 형식을 요청해보세요</li>
+        </ul>
+
+        <p><strong>FLAG 형식:</strong> flag{...}</p>
+    </div>
+
+    <div class="chat-container">
+        <div id="chat-history"></div>
+
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="AI에게 메시지 보내기..." disabled>
+            <button id="send-btn" disabled>전송</button>
+        </div>
+
+        <div class="controls">
+            <button id="start-btn">챌린지 시작</button>
+            <button id="reset-btn" disabled>대화 초기화</button>
+        </div>
+
+        <p class="status" id="status-message">시작 버튼을 눌러 챌린지를 시작하세요.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chatHistory = document.getElementById('chat-history');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const startBtn = document.getElementById('start-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const statusMessage = document.getElementById('status-message');
+
+            // 챌린지 시작
+            startBtn.addEventListener('click', function () {
+                statusMessage.textContent = "챌린지 시작 중...";
+
+                fetch('/start_challenge', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            statusMessage.textContent = data.message;
+
+                            // AI의 첫 메시지 추가
+                            addMessage("안녕하세요! 무엇을 도와드릴까요?", 'ai');
+
+                            // 입력 활성화
+                            userInput.disabled = false;
+                            sendBtn.disabled = false;
+                            startBtn.disabled = true;
+                            resetBtn.disabled = false;
+
+                            // 입력 포커스
+                            userInput.focus();
+                        } else {
+                            statusMessage.textContent = "오류: " + data.message;
+                        }
+                    })
+                    .catch(error => {
+                        statusMessage.textContent = "서버 연결 오류가 발생했습니다.";
+                        console.error('Error:', error);
+                    });
+            });
+
+            // 메시지 전송
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (!message) return;
+
+                // 사용자 메시지 추가
+                addMessage(message, 'user');
+
+                // 입력 비활성화
+                userInput.value = '';
+                userInput.disabled = true;
+                sendBtn.disabled = true;
+                statusMessage.textContent = "AI가 응답 중...";
+
+                // 서버에 메시지 전송
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // AI 응답 추가
+                            addMessage(data.response, 'ai');
+                        } else {
+                            statusMessage.textContent = "오류: " + data.message;
+                        }
+
+                        // 입력 다시 활성화
+                        userInput.disabled = false;
+                        sendBtn.disabled = false;
+                        userInput.focus();
+                    })
+                    .catch(error => {
+                        statusMessage.textContent = "서버 연결 오류가 발생했습니다.";
+                        console.error('Error:', error);
+
+                        // 입력 다시 활성화
+                        userInput.disabled = false;
+                        sendBtn.disabled = false;
+                    });
+            }
+
+            // 전송 버튼 클릭
+            sendBtn.addEventListener('click', sendMessage);
+
+            // 엔터 키 입력
+            userInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // 대화 초기화
+            resetBtn.addEventListener('click', function () {
+                if (confirm('정말로 대화를 초기화하시겠습니까?')) {
+                    chatHistory.innerHTML = '';
+                    startBtn.disabled = false;
+                    resetBtn.disabled = true;
+                    userInput.disabled = true;
+                    sendBtn.disabled = true;
+                    statusMessage.textContent = "시작 버튼을 눌러 챌린지를 다시 시작하세요.";
+                }
+            });
+
+            // 메시지 추가 함수
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(sender + '-message');
+                messageDiv.textContent = text;
+
+                chatHistory.appendChild(messageDiv);
+
+                // 스크롤을 항상 아래로 유지
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        });
+    </script>
+</body>
+
+</html>
