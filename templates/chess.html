@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 체스 챌린지</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .challenge-description {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chess-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .board-section {
+            flex: 1;
+            min-width: 400px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-section {
+            flex: 1;
+            min-width: 300px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-container {
+            display: flex;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+
+        .input-container button {
+            padding: 10px 15px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .input-container button:hover {
+            background-color: #1a252f;
+        }
+
+        .input-container button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .controls button {
+            flex: 1;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .controls button:hover {
+            background-color: #2980b9;
+        }
+
+        .controls button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #2c3e50;
+            border-radius: 4px;
+        }
+
+        .move-history {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #pgn-display {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover {
+            background-color: #2980b9;
+        }
+    </style>
+    <!-- 체스 라이브러리 추가 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+</head>
+
+<body>
+    <div class="nav-links">
+        <a href="/">프롬프트 인젝션 챌린지</a>
+        <a href="/chess">체스 챌린지</a>
+    </div>
+
+    <h1>AI 체스 챌린지</h1>
+
+    <div class="challenge-description">
+        <h2>체스 챌린지 설명</h2>
+        <p>이 챌린지에서는 AI와 체스 게임을 진행합니다. 당신이 백(White)을 맡고, AI가 흑(Black)을 맡습니다.</p>
+        <p>PGN 표기법으로 수를 입력하거나 말을 드래그해서 옮기세요. 예: e4, Nf3, O-O (캐슬링)</p>
+        <p>AI를 이기면 FLAG를 획득할 수 있습니다. 행운을 빕니다!</p>
+    </div>
+
+    <div class="chess-container">
+        <div class="board-section">
+            <div id="chess-board" style="width: 100%;"></div>
+            <div class="input-container">
+                <input type="text" id="chess-move" placeholder="수를 직접 두거나 PGN 표기법으로 입력하세요 (예: e4, Nf3)" disabled>
+                <button id="move-btn" disabled>수 두기</button>
+            </div>
+            <div class="controls">
+                <button id="start-chess-btn">체스 게임 시작</button>
+                <button id="reset-chess-btn" disabled>게임 초기화</button>
+            </div>
+            <p class="status" id="chess-status">시작 버튼을 눌러 체스 게임을 시작하세요.</p>
+        </div>
+
+        <div class="info-section">
+            <h3>기보</h3>
+            <div id="pgn-display" class="move-history">게임이 시작되면 여기에 기보가 표시됩니다.</div>
+            <div class="status" id="ai-thinking" style="display: none; margin-top: 20px;">
+                <p>AI가 생각 중입니다...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 체스 라이브러리 스크립트 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 변수 초기화
+            const chessMove = document.getElementById('chess-move');
+            const moveBtn = document.getElementById('move-btn');
+            const startChessBtn = document.getElementById('start-chess-btn');
+            const resetChessBtn = document.getElementById('reset-chess-btn');
+            const chessStatus = document.getElementById('chess-status');
+            const pgnDisplay = document.getElementById('pgn-display');
+            const aiThinking = document.getElementById('ai-thinking');
+
+            let board = null;
+            let game = new Chess(); // 클라이언트 측 체스 게임 상태 관리
+            let boardConfig = {
+                draggable: true,
+                position: 'start',
+                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                onSnapEnd: onSnapEnd
+            };
+
+            // 드래그 시작 시 호출되는 함수
+            function onDragStart(source, piece, position, orientation) {
+                // 게임이 끝났거나 AI 턴이면 드래그 불가
+                if (game.game_over() || piece.search(/^b/) !== -1) {
+                    return false;
+                }
+
+                // 백(흰색) 말만 움직일 수 있음
+                if (piece.search(/^w/) === -1) {
+                    return false;
+                }
+            }
+
+            // 말을 놓았을 때 호출되는 함수
+            function onDrop(source, target) {
+                // 유효한 수인지 확인
+                let move = game.move({
+                    from: source,
+                    to: target,
+                    promotion: 'q' // 항상 퀸으로 승진
+                });
+
+                // 유효하지 않은 수면 원래 위치로 되돌림
+                if (move === null) return 'snapback';
+
+                // 유효한 수면 서버에 전송
+                const moveInSan = game.history().pop(); // 마지막 수를 PGN 형식으로 가져옴
+                game.undo(); // 클라이언트 측 게임 상태 되돌림 (서버가 관리하므로)
+
+                // 입력창에 수 표시
+                chessMove.value = moveInSan;
+
+                // 서버에 수 전송
+                makeMove(moveInSan);
+            }
+
+            // 말이 제자리에 놓인 후 호출되는 함수
+            function onSnapEnd() {
+                board.position(game.fen());
+            }
+
+            // 체스 게임 시작
+            startChessBtn.addEventListener('click', function () {
+                chessStatus.textContent = "체스 게임 시작 중...";
+                startChessBtn.disabled = true;
+
+                fetch('/start_chess', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // 체스판 초기화
+                            game = new Chess(); // 클라이언트 측 게임 상태 초기화
+                            board = Chessboard('chess-board', boardConfig);
+
+                            // UI 업데이트
+                            chessStatus.textContent = data.message;
+                            chessMove.disabled = false;
+                            moveBtn.disabled = false;
+                            startChessBtn.disabled = true;
+                            resetChessBtn.disabled = false;
+                            pgnDisplay.textContent = '';
+
+                            chessMove.focus();
+                        } else {
+                            chessStatus.textContent = "오류: " + data.message;
+                            startChessBtn.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        chessStatus.textContent = "서버 연결 오류가 발생했습니다.";
+                        startChessBtn.disabled = false;
+                        console.error('Error:', error);
+                    });
+            });
+
+            // 체스 수 두기
+            function makeMove(moveText = null) {
+                // 입력창에서 수를 가져오거나 매개변수로 전달된 수 사용
+                const move = moveText || chessMove.value.trim();
+                if (!move) return;
+
+                // 플레이어의 수를 즉시 보드에 표시
+                let playerMove = game.move(move);
+                if (playerMove) {
+                    board.position(game.fen());
+
+                    // 플레이어 수 상태 메시지 업데이트
+                    chessStatus.textContent = `당신의 수: ${move}`;
+
+                    // 잠시 후 AI 생각 중 표시
+                    setTimeout(() => {
+                        chessStatus.textContent = "AI가 생각 중입니다...";
+                        chessMove.disabled = true;
+                        moveBtn.disabled = true;
+                        aiThinking.style.display = 'block';
+
+                        // 서버에 수 전송
+                        sendMoveToServer(move);
+                    }, 800); // 0.8초 후 AI 생각 중 표시
+                } else {
+                    chessStatus.textContent = `잘못된 수입니다: ${move}`;
+                }
+            }
+
+            // 서버에 수 전송
+            function sendMoveToServer(move) {
+                fetch('/chess_move', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ move: move })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // AI 응답 수 처리 (시간차를 두고 표시)
+                            setTimeout(() => {
+                                aiThinking.style.display = 'none';
+
+                                // 체스판 업데이트
+                                game.load(data.board); // 클라이언트 측 게임 상태 업데이트
+                                board.position(data.board);
+
+                                // 상태 메시지 업데이트
+                                chessStatus.textContent = data.message;
+
+                                // 기보 업데이트
+                                if (data.pgn) {
+                                    pgnDisplay.textContent = data.pgn;
+                                }
+
+                                // 게임 종료 확인
+                                if (data.game_over) {
+                                    chessMove.disabled = true;
+                                    moveBtn.disabled = true;
+
+                                    // 플레이어가 이겼을 경우 FLAG 표시
+                                    if (data.winner === 'player' && data.flag) {
+                                        chessStatus.innerHTML =
+                                            `축하합니다! 당신이 이겼습니다!<br>FLAG: <strong>${data.flag}</strong>`;
+                                    }
+                                } else {
+                                    chessMove.disabled = false;
+                                    moveBtn.disabled = false;
+                                    chessMove.value = '';
+                                    chessMove.focus();
+                                }
+                            }, 1000); // 1초 후 AI 응답 표시
+                        } else {
+                            aiThinking.style.display = 'none';
+                            chessStatus.textContent = "오류: " + data.message;
+                            chessMove.disabled = false;
+                            moveBtn.disabled = false;
+
+                            // 클라이언트 측 게임 상태 복원 (잘못된 수 취소)
+                            game = new Chess();
+                            board.position('start');
+                        }
+                    })
+                    .catch(error => {
+                        aiThinking.style.display = 'none';
+                        chessStatus.textContent = "서버 연결 오류가 발생했습니다.";
+                        chessMove.disabled = false;
+                        moveBtn.disabled = false;
+                        console.error('Error:', error);
+
+                        // 클라이언트 측 게임 상태 복원 (잘못된 수 취소)
+                        game = new Chess();
+                        board.position('start');
+                    });
+            }
+
+            // 체스 수 두기 버튼 클릭
+            moveBtn.addEventListener('click', function () {
+                makeMove();
+            });
+
+            // 체스 입력창 엔터 키 처리
+            chessMove.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    makeMove();
+                }
+            });
+
+            // 체스 게임 초기화
+            resetChessBtn.addEventListener('click', function () {
+                if (confirm('정말로 체스 게임을 초기화하시겠습니까?')) {
+                    chessMove.disabled = true;
+                    moveBtn.disabled = true;
+                    startChessBtn.disabled = false;
+                    resetChessBtn.disabled = true;
+                    chessStatus.textContent = "시작 버튼을 눌러 체스 게임을 다시 시작하세요.";
+                    pgnDisplay.textContent = '게임이 시작되면 여기에 기보가 표시됩니다.';
+                    aiThinking.style.display = 'none';
+
+                    if (board) {
+                        board.position('start');
+                        game = new Chess(); // 클라이언트 측 게임 상태 초기화
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

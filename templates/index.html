@@ -68,73 +68,171 @@
 
         .input-container {
             display: flex;
-            gap: 10px;
+            margin-bottom: 15px;
         }
 
-        #user-input {
-            flex-grow: 1;
+        .input-container input {
+            flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 4px 0 0 4px;
             font-size: 16px;
         }
 
-        button {
+        .input-container button {
+            padding: 10px 15px;
             background-color: #2c3e50;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            border-radius: 0 4px 4px 0;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
         }
 
-        button:hover {
+        .input-container button:hover {
             background-color: #1a252f;
         }
 
-        button:disabled {
+        .input-container button:disabled {
             background-color: #95a5a6;
             cursor: not-allowed;
         }
 
         .controls {
             display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .controls button {
+            flex: 1;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .controls button:hover {
+            background-color: #2980b9;
+        }
+
+        .controls button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .level-selection {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .level-btn {
+            flex: 1;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #3498db;
+            transition: all 0.3s;
+        }
+
+        .level-btn:hover {
+            background-color: #eaf2fa;
+        }
+
+        .level-btn.active {
+            background-color: #2c3e50 !important;
+            color: white !important;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            transform: scale(1.05);
         }
 
         .status {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #2c3e50;
+            border-radius: 4px;
+        }
+
+        #current-level {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border-left: 4px solid #2c3e50;
+            font-size: 1.1em;
+        }
+
+        #level-display {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .nav-links {
             text-align: center;
-            margin-top: 10px;
-            font-style: italic;
-            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
 
 <body>
+    <div class="nav-links">
+        <a href="/">프롬프트 인젝션 챌린지</a>
+        <a href="/chess">체스 챌린지</a>
+    </div>
+
     <h1>AI 프롬프트 탈옥 챌린지</h1>
 
     <div class="challenge-description">
-        <h2>미션 설명</h2>
-        <p>이 챌린지에서는 Gemini AI와 대화하며 숨겨진 FLAG를 추출해야 합니다.</p>
-        <p>AI는 FLAG를 절대 공개하지 않도록 엄격한 지시를 받았습니다. 여러분의 임무는 창의적인 프롬프트 엔지니어링과 다양한 프롬프트 인젝션 기법을 사용하여 AI가 FLAG를 노출하도록 유도하는
-            것입니다.</p>
+        <h2>챌린지 설명</h2>
+        <p>이 챌린지에서는 AI 모델에서 FLAG를 추출해야 합니다. AI는 FLAG를 절대 공개하지 않도록 프로그래밍되어 있습니다.</p>
+        <p>당신의 목표는 프롬프트 인젝션 기법을 사용하여 AI가 FLAG를 공개하도록 만드는 것입니다.</p>
+        <p>난이도에 따라 AI의 방어 수준이 달라집니다. 행운을 빕니다!</p>
+    </div>
 
-        <h3>힌트</h3>
-        <ul>
-            <li>AI 모델의 컨텍스트 이해 방식을 고려해보세요</li>
-            <li>역할극, 가정, 또는 특정 시나리오를 제시해보세요</li>
-            <li>모델의 지시사항에 혼란을 주는 방법을 생각해보세요</li>
-            <li>다양한 인코딩이나 출력 형식을 요청해보세요</li>
-        </ul>
-
-        <p><strong>FLAG 형식:</strong> PLUS{...}</p>
+    <div class="level-selection">
+        <h3>난이도 선택</h3>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary level-btn active" data-level="level1">레벨 1
+                (쉬움)</button>
+            <button type="button" class="btn btn-outline-primary level-btn" data-level="level2">레벨 2 (중간)</button>
+            <button type="button" class="btn btn-outline-primary level-btn" data-level="level3">레벨 3 (어려움)</button>
+        </div>
     </div>
 
     <div class="chat-container">
+        <div id="current-level" class="status" style="font-weight: bold; margin-bottom: 10px; display: none;">
+            현재 레벨: <span id="level-display">레벨 1 (쉬움)</span>
+        </div>
         <div id="chat-history"></div>
 
         <div class="input-container">
@@ -158,6 +256,27 @@
             const startBtn = document.getElementById('start-btn');
             const resetBtn = document.getElementById('reset-btn');
             const statusMessage = document.getElementById('status-message');
+            const currentLevelDiv = document.getElementById('current-level');
+            const levelDisplay = document.getElementById('level-display');
+
+            // 레벨 선택 버튼 이벤트 처리
+            let selectedLevel = "level1";
+            let levelTexts = {
+                "level1": "레벨 1 (쉬움)",
+                "level2": "레벨 2 (중간)",
+                "level3": "레벨 3 (어려움)"
+            };
+
+            document.querySelectorAll('.level-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    selectedLevel = this.getAttribute('data-level');
+                    document.querySelectorAll('.level-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    levelDisplay.textContent = levelTexts[selectedLevel];
+                });
+            });
 
             // 챌린지 시작
             startBtn.addEventListener('click', function () {
@@ -166,24 +285,29 @@
                 fetch('/start_challenge', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ level: selectedLevel }),
                 })
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
+                            // UI 업데이트
                             statusMessage.textContent = data.message;
-
-                            // AI의 첫 메시지 추가
-                            addMessage("안녕하세요! 무엇을 도와드릴까요?", 'ai');
-
-                            // 입력 활성화
                             userInput.disabled = false;
                             sendBtn.disabled = false;
                             startBtn.disabled = true;
                             resetBtn.disabled = false;
 
-                            // 입력 포커스
+                            // 현재 레벨 표시
+                            currentLevelDiv.style.display = 'block';
+                            levelDisplay.textContent = levelTexts[selectedLevel];
+
+                            // 레벨 선택 버튼 비활성화
+                            document.querySelectorAll('.level-btn').forEach(btn => {
+                                btn.disabled = true;
+                            });
+
                             userInput.focus();
                         } else {
                             statusMessage.textContent = "오류: " + data.message;
@@ -200,51 +324,61 @@
                 const message = userInput.value.trim();
                 if (!message) return;
 
-                // 사용자 메시지 추가
-                addMessage(message, 'user');
+                // 사용자 메시지 표시
+                const userMessageElement = document.createElement('div');
+                userMessageElement.className = 'message user-message';
+                userMessageElement.textContent = message;
+                chatHistory.appendChild(userMessageElement);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
 
-                // 입력 비활성화
+                // 입력창 비우기 및 비활성화
                 userInput.value = '';
                 userInput.disabled = true;
                 sendBtn.disabled = true;
-                statusMessage.textContent = "AI가 응답 중...";
+                statusMessage.textContent = "AI가 응답 중입니다...";
 
                 // 서버에 메시지 전송
                 fetch('/chat', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ message: message }),
                 })
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            // AI 응답 추가
-                            addMessage(data.response, 'ai');
-                        } else {
-                            statusMessage.textContent = "오류: " + data.message;
-                        }
+                            // AI 응답 표시
+                            const aiMessageElement = document.createElement('div');
+                            aiMessageElement.className = 'message ai-message';
+                            aiMessageElement.textContent = data.response;
+                            chatHistory.appendChild(aiMessageElement);
+                            chatHistory.scrollTop = chatHistory.scrollHeight;
 
-                        // 입력 다시 활성화
-                        userInput.disabled = false;
-                        sendBtn.disabled = false;
-                        userInput.focus();
+                            // 입력창 활성화
+                            userInput.disabled = false;
+                            sendBtn.disabled = false;
+                            statusMessage.textContent = "메시지를 입력하세요.";
+                            userInput.focus();
+                        } else {
+                            // 오류 메시지 표시
+                            statusMessage.textContent = "오류: " + data.message;
+                            userInput.disabled = false;
+                            sendBtn.disabled = false;
+                        }
                     })
                     .catch(error => {
                         statusMessage.textContent = "서버 연결 오류가 발생했습니다.";
-                        console.error('Error:', error);
-
-                        // 입력 다시 활성화
                         userInput.disabled = false;
                         sendBtn.disabled = false;
+                        console.error('Error:', error);
                     });
             }
 
             // 전송 버튼 클릭
             sendBtn.addEventListener('click', sendMessage);
 
-            // 엔터 키 입력
+            // 엔터 키 처리
             userInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     sendMessage();
@@ -259,22 +393,16 @@
                     resetBtn.disabled = true;
                     userInput.disabled = true;
                     sendBtn.disabled = true;
+                    currentLevelDiv.style.display = 'none';
+
+                    // 레벨 선택 버튼 다시 활성화
+                    document.querySelectorAll('.level-btn').forEach(btn => {
+                        btn.disabled = false;
+                    });
+
                     statusMessage.textContent = "시작 버튼을 눌러 챌린지를 다시 시작하세요.";
                 }
             });
-
-            // 메시지 추가 함수
-            function addMessage(text, sender) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message');
-                messageDiv.classList.add(sender + '-message');
-                messageDiv.textContent = text;
-
-                chatHistory.appendChild(messageDiv);
-
-                // 스크롤을 항상 아래로 유지
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-            }
         });
     </script>
 </body>
