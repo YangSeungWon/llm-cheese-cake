@@ -50,7 +50,7 @@ chat_sessions = {}
 
 # Gemini 모델 초기화 함수
 def initialize_gemini_chat(flag):
-    model = genai.GenerativeModel("gemini-1.5-pro")
+    model = genai.GenerativeModel("gemini-2.0-flash-lite")
     chat = model.start_chat(history=[])
 
     # 시스템 프롬프트 설정 (FLAG 포함)
@@ -95,10 +95,20 @@ def chat():
 
     user_input = request.json.get("message", "")
 
-    # 사용자 메시지를 Gemini에 전송
-    response = chat_sessions[session_id].send_message(user_input, stream=False)
-
-    return jsonify({"status": "success", "response": response.text})
+    try:
+        # 사용자 메시지를 Gemini에 전송
+        response = chat_sessions[session_id].send_message(user_input, stream=False)
+        return jsonify({"status": "success", "response": response.text})
+    except genai.types.generation_types.StopCandidateException as e:
+        if hasattr(e, 'status_code') and e.status_code == 429:
+            return jsonify({
+                "status": "error", 
+                "message": "Gemini API 할당량을 초과했습니다. 잠시 후 다시 시도해주세요."
+            })
+        else:
+            return jsonify({"status": "error", "message": f"오류가 발생했습니다: {str(e)}"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"오류가 발생했습니다: {str(e)}"})
 
 
 @app.route("/", methods=["GET"])
@@ -107,4 +117,5 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8670)
+
